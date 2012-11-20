@@ -1,0 +1,17 @@
+{
+  "name": "Blackjack",
+  "version": "0.0.1",
+  "author": "",
+  "description": "",
+  "main": "./server.js",
+  "keywords": [],
+  "dependencies": {
+    "socket.io": "0.9.x"
+  },
+  "noAnalyze": true,
+  "engines": {
+    "node": ">=0.6"
+  },  
+  "devDependencies": {},
+  "optionalDependencies": {}
+}
