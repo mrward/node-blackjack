@@ -1,125 +1,55 @@
 var http = require('http'),
     fs = require('fs'),
-    url = require('url');
+    url = require('url'),
+    blackjack = require('./lib/blackjack');
 
 var Server = {}
 
-Server.getRandomInt = function (max) {
-  return Math.floor(Math.random() * (max + 1));
-}
-
-Server.getShuffledDeck = function () {
-    var cards = [];
-    cards[0] = 0;
-    for (var i = 1; i < 52; i++) {
-        var j = getRandomInt(i);
-        cards[i] = cards[j];
-        cards[j] = i;        
-    }
-    return cards;
-}
-
-Server.numberToSuit = function (number) {
-  var suits = ['C', 'D', 'H', 'S'];
-  var index = Math.floor(number / 13);
-  return suits[index];
-}
-
-Server.numberToCard = function (number) {
-  return {
-    rank: (number % 13) + 1,
-    suit: numberToSuit(number)
-  };
-}
-
-Server.dealCardsForNewGame = function () {
-
-    var dealerCards = [];
-    var playerCards = [];
-
-    return {
-        dealer: {
-            cards: [{ rank: 9, suit: 'S'}]
-        },
-        player: {
-            cards: [
-                { rank: 10, suit: 'H' },
-                { rank: 10, suit: 'C' }
-            ],
-            balance: 102.50
-        },
-        result: 'None'
-    };
-}
-
-Server.dealNextCardForPlayer = function () {
-    return {
-        dealer: {
-            cards: [{ rank: 9, suit: 'S'}]
-        },
-        player: {
-            cards: [
-                {rank: 10, suit: 'H'},
-                {rank: 10, suit: 'C'},
-                {rank: 4, suit: 'D'}
-            ],
-            balance: 102.50
-        },
-        result: "None"
-    };
-}
-
-Server.dealerPlays = function () {
-    return {
-        dealer: {
-            cards: [
-                { rank: 9, suit: 'S'},
-                { rank: 10, suit: 'S'}
-            ]
-        },
-        player: {
-            cards: [
-                {rank: 10, suit: 'H'},
-                {rank: 10, suit: 'C'}
-            ],
-            balance: 102.50
-        },
-        result: "Win"
-    };
+Server.getGame = function (socket, data, callback) {
+    socket.get('game', function (err, game) {
+        callback(socket, game);
+    });
 }
 
 Server.deal = function (socket, data) {
     console.log('deal');
-    var game = Server.dealCardsForNewGame();
-    socket.set('game', game);
-    socket.emit('deal', game);
+    Server.getGame(socket, data, function (socket, game) {
+        game.newGame();
+        socket.emit('deal', game.toJson());
+    });
 }
 
-Server.hit = function (socket) {
+Server.hit = function (socket, data) {
     console.log('hit');
-    socket.emit('hit', Server.dealNextCardForPlayer());
+    Server.getGame(socket, data, function (socket, game) {
+        game.hit();
+        socket.emit('hit', game.toJson());
+    });
 }
 
-Server.stand = function (socket) {
+Server.stand = function (socket, data) {
     console.log('stand');
-    socket.emit('stand', Server.dealerPlays());
+    Server.getGame(socket, data, function (socket, game) {
+        game.stand();
+        socket.emit('stand', game.toJson());
+    });
 }
 
 Server.registerSocketIO = function (io) {
     io.sockets.on('connection', function (socket) {
         console.log('User connected');
-        Server.socket = socket;
+        socket.set('game', blackjack.newGame())
 
         socket.on('deal', function (data) {
-            Server.deal(socket, socket);
+            Server.deal(socket, data);
         });
 
         socket.on('hit', function (data) {
-            Server.hit(socket);
+            Server.hit(socket, data);
         });
 
         socket.on('stand', function (data) {
-            Server.stand(socket);
+            Server.stand(socket, data);
         });
 
         socket.on('disconnect', function (socket) {
