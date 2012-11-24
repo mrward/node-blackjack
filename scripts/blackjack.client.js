@@ -25,35 +25,53 @@ App.getSuitHtml = function (suit) {
     return "<img class='card' src='img/" + image + "'/>";
 }
 
-App.getCardHtml = function (cards) {
+App.getRankHtml = function (rank) {
+    if (rank === 1) {
+        return 'A';
+    } else if (rank === 11) {
+        return 'J';
+    } else if (rank === 12) {
+        return 'Q';
+    } else if (rank === 13) {
+        return 'K';
+    }
+    return rank;
+}
+
+App.getCardsHtml = function (cards) {
     var html = '';
     for (var i = 0; i < cards.length; i++) {
         var card = cards[i];
-        html += card.rank;
+        html += App.getRankHtml(card.rank);
         html += App.getSuitHtml(card.suit);
     }
     return html;
 }
 
 App.updatePlayer = function (player) {
-    var html = App.getCardHtml(player.cards);
-    $('#player').html(html);
+    var html = App.getCardsHtml(player.cards);
+    $('#playerCards').html(html);
+    $('#playerScore').text(player.score);
 }
 
 App.updateDealer = function (dealer) {
-    var html = App.getCardHtml(dealer.cards);
-    $('#dealer').html(html);
+    var html = App.getCardsHtml(dealer.cards);
+    $('#dealerCards').html(html);
+    $('#dealerScore').text(dealer.score);
 }
 
 App.updateResult = function (result) {
-    if (result != 'None') {
-        $('#result').text(result);
+    var displayResult = result;
+    if (result === 'None') {
+        displayResult = '';
     }
+    $('#result').text(displayResult);
 }
 
 App.dealResult = function (game) {
     App.updateDealer(game.dealer);
     App.updatePlayer(game.player);
+    App.updateResult(game.result);
 }
 
 App.hitResult = function (game) {

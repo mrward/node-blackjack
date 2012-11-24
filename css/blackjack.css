@@ -8,12 +8,20 @@ h1 {
     margin: 0;
 }
 
-#dealer {
-    min-height: 80px;
+#dealerCards {
+    min-height: 60px;
 }
 
-#player {
+#dealerScore {
+    min-height:  20px;
+}
+
+#playerCards {
     min-height: 60px;
+}
+
+#playerScore {
+    min-height: 20px;
 }
 
 #result {
