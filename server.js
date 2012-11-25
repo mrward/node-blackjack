@@ -14,7 +14,9 @@ Server.getGame = function (socket, data, callback) {
 Server.deal = function (socket, data) {
     console.log('deal');
     Server.getGame(socket, data, function (socket, game) {
-        game.newGame();
+        if (!game.isInProgress()) {
+            game.newGame();
+        }
         socket.emit('deal', game.toJson());
     });
 }
