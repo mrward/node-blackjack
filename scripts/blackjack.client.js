@@ -68,7 +68,34 @@ App.updateResult = function (result) {
     $('#result').text(displayResult);
 }
 
+App.disableButton = function (id) {
+    $(id).attr('disabled', 'disabled');
+}
+
+App.enableButton = function (id) {
+    $(id).removeAttr('disabled');
+}
+
+App.disableDeal = function () {
+    App.disableButton('#deal');
+    App.enableButton('#hit');
+    App.enableButton('#stand');
+}
+
+App.enableDeal = function () {
+    App.enableButton('#deal');
+    App.disableButton('#hit');
+    App.disableButton('#stand');
+}
+
+App.enableDealIfGameFinished = function (result) {
+    if (result !== 'None') {
+        App.enableDeal();
+    }
+}
+
 App.dealResult = function (game) {
+    App.disableDeal();
     App.updateDealer(game.dealer);
     App.updatePlayer(game.player);
     App.updateResult(game.result);
@@ -78,12 +105,14 @@ App.hitResult = function (game) {
     App.updateDealer(game.dealer);
     App.updatePlayer(game.player);
     App.updateResult(game.result);
+    App.enableDealIfGameFinished(game.result);
 }
 
 App.standResult = function (game) {
     App.updateDealer(game.dealer);
     App.updatePlayer(game.player);
     App.updateResult(game.result);
+    App.enableDealIfGameFinished(game.result);
 }
 
 App.socket = {}
@@ -120,6 +149,7 @@ App.init = function () {
     App.socket = socket;
     App.registerClientActions();
     App.registerServerActions();
+    App.enableDeal();
 }
 
 $(document).ready(function () {
